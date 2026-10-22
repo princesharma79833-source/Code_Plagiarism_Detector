@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ADA Project | Code Similarity Detector</title>
+
+    <!-- CSS for Diff2Html and Highlight.js -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/github.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css"
+    />
+
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f7f6;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        text-align: center;
+        color: #2c3e50;
+      }
+      .upload-section {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 30px;
+        gap: 20px;
+      }
+      .file-box {
+        flex: 1;
+        padding: 20px;
+        border: 2px dashed #3498db;
+        border-radius: 8px;
+        text-align: center;
+        background: #f9fbfc;
+      }
+      button {
+        display: block;
+        width: 100%;
+        padding: 15px;
+        background-color: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 18px;
+        cursor: pointer;
+        margin-top: 30px;
+        font-weight: bold;
+      }
+      .result-box {
+        margin-top: 30px;
+        padding: 20px;
+        border-radius: 8px;
+        display: none;
+        background: #2c3e50;
+        color: white;
+      }
+      .score-item {
+        font-size: 18px;
+        margin: 10px 0;
+        display: flex;
+        justify-content: space-between;
+        border-bottom: 1px solid #455a64;
+        padding-bottom: 5px;
+      }
+      .verdict {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-top: 20px;
+        padding: 10px;
+        border-radius: 5px;
+      }
+      .high {
+        background-color: #e74c3c;
+      }
+      .moderate {
+        background-color: #f39c12;
+      }
+      .low {
+        background-color: #2ecc71;
+      }
+      #diffBox {
+        margin-top: 30px;
+      } /* Yahan comparison dikhega */
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Code Similarity & Plagiarism Detector</h1>
+      <p style="text-align: center; color: #7f8c8d">
+        Algorithms Used: Longest Common Subsequence (DP) & Knuth-Morris-Pratt
+      </p>
+
+      <form id="uploadForm">
+        <div class="upload-section">
+          <div class="file-box">
+            <h3>Upload File A (.c / .cpp)</h3>
+            <input type="file" id="fileA" required accept=".c, .cpp" />
+          </div>
+          <div class="file-box">
+            <h3>Upload File B (.c / .cpp)</h3>
+            <input type="file" id="fileB" required accept=".c, .cpp" />
+          </div>
+        </div>
+        <button type="submit">Compare Code Files</button>
+      </form>
+
+      <div class="result-box" id="resultBox">
+        <h2 style="text-align: center; margin-top: 0">Analysis Report</h2>
+        <div class="score-item">
+          <span>LCS Similarity (Structural Match):</span>
+          <span id="lcsScore">0%</span>
+        </div>
+        <div class="score-item">
+          <span>KMP Exact Match (Copy-Paste):</span>
+          <span id="kmpScore">0%</span>
+        </div>
+        <div class="score-item">
+          <strong>Overall Similarity Score:</strong>
+          <strong id="totalScore">0%</strong>
+        </div>
+        <div id="verdictBox" class="verdict"></div>
+      </div>
+
+      <!-- UI enhancement display box -->
+      <div id="diffBox"></div>
+    </div>
+
+    <!-- Scripts for diff generation and syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
+    <script
+      type="text/javascript"
+      src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"
+    ></script>
+
+    <script>
+      document
+        .getElementById("uploadForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          const fileA = document.getElementById("fileA").files[0];
+          const fileB = document.getElementById("fileB").files[0];
+
+          const formData = new FormData();
+          formData.append("codeFiles", fileA);
+          formData.append("codeFiles", fileB);
+
+          const btn = document.querySelector("button");
+          btn.innerText = "Analyzing...";
+
+          try {
+            const response = await fetch("/compare", {
+              method: "POST",
+              body: formData,
+            });
+            const data = await response.json();
+
+            if (data.error) {
+              alert(data.error);
+              return;
+            }
+
+            document.getElementById("lcsScore").innerText =
+              (data.lcs_ratio * 100).toFixed(2) + "%";
+            document.getElementById("kmpScore").innerText =
+              (data.kmp_ratio * 100).toFixed(2) + "%";
+            document.getElementById("totalScore").innerText =
+              data.overall_score.toFixed(2) + "%";
+
+            const verdictBox = document.getElementById("verdictBox");
+            verdictBox.innerText = data.verdict;
+            verdictBox.className = "verdict";
+            if (data.verdict === "High Similarity")
+              verdictBox.classList.add("high");
+            else if (data.verdict === "Moderate Similarity")
+              verdictBox.classList.add("moderate");
+            else verdictBox.classList.add("low");
+
+            document.getElementById("resultBox").style.display = "block";
+
+            // --- DIFF2HTML LOGIC ---
+            // JsDiff library se ek patch (git-style diff) banate hain
+            const diffString = Diff.createTwoFilesPatch(
+              "File A",
+              "File B",
+              data.codeA,
+              data.codeB,
+            );
+
+            // Diff2Html se usko UI par side-by-side draw karte hain
+            const targetElement = document.getElementById("diffBox");
+            const diff2htmlUi = new Diff2HtmlUI(targetElement, diffString, {
+              drawFileList: false,
+              matching: "lines",
+              outputFormat: "side-by-side", // Project synopsis ke hisaab se
+            });
+            diff2htmlUi.draw();
+            diff2htmlUi.highlightCode(); // Highlight.js trigger karta hai
+          } catch (err) {
+            alert("Error connecting to backend!");
+          } finally {
+            btn.innerText = "Compare Code Files";
+          }
+        });
+    </script>
+  </body>
+</html>
