@@ -15,6 +15,8 @@ An algorithm-driven web application to detect copied and AI-generated source cod
 - **UI Libraries:** diff2html (Side-by-side code comparison) & highlight.js (C/C++ Syntax highlighting)[cite: 5]
 
 ## 🚀 How to Run the Project
+## 🚀 Live Demo
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Click%20Here-brightgreen?style=for-the-badge&logo=render)](https://https://code-plagiarism-detector-fwnj.onrender.com/)
 
 1. **Clone the repository:**
    `git clone <your-repo-link>`
