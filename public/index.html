@@ -1,225 +1,195 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ADA Project | Code Similarity Detector</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#090e1a" />
+  <meta name="description" content="Compare C and C++ source files with LCS and KMP similarity analysis." />
+  <title>CodeGuard — Source Code Similarity Analyzer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css">
+  <style>
+    :root{color-scheme:dark;--bg:#090e1a;--panel:#101827;--panel2:#141f31;--line:#263449;--muted:#8fa0b8;--text:#edf3fc;--blue:#6ea8fe;--cyan:#58d5d0;--green:#3dd598;--amber:#ffbf69;--red:#ff7185;--shadow:0 18px 55px #0005}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 12% -10%,#1c3760 0,transparent 34%),radial-gradient(ellipse at 100% 10%,#123b42 0,transparent 28%),var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif;min-height:100vh}
+    button,input{font:inherit}.shell{max-width:1240px;margin:auto;padding:26px 28px 60px}.topbar{display:flex;align-items:center;justify-content:space-between;padding:8px 0 25px;border-bottom:1px solid #ffffff12}.brand{display:flex;gap:12px;align-items:center;font-weight:800;letter-spacing:.02em}.brandmark{width:40px;height:40px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(135deg,#367cf6,#35c9c1);box-shadow:0 8px 24px #287be955;font:500 19px 'DM Mono',monospace;color:white}.brand small{display:block;color:var(--muted);font-size:10px;font-weight:600;letter-spacing:.16em;margin-top:3px}.status{display:flex;align-items:center;gap:8px;border:1px solid #245b4b;background:#102a27;color:#8ce6c3;padding:8px 12px;border-radius:99px;font-size:12px;font-weight:600}.dot{width:7px;height:7px;background:var(--green);border-radius:50%;box-shadow:0 0 12px var(--green)}
+    .hero{padding:42px 0 28px}.eyebrow{color:var(--cyan);font-size:11px;font-weight:800;letter-spacing:.17em;text-transform:uppercase}.hero h1{font-size:clamp(30px,4vw,46px);line-height:1.12;letter-spacing:-.045em;margin:12px 0 12px}.hero h1 span{background:linear-gradient(90deg,#78aaff,#5ce0d1);-webkit-background-clip:text;background-clip:text;color:transparent}.hero p{max-width:680px;color:var(--muted);line-height:1.7;margin:0;font-size:14px}
+    .workspace{display:grid;grid-template-columns:1fr 1fr;gap:16px}.panel{background:linear-gradient(180deg,#121d2d,#0f1725);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}.upload-card{padding:20px}.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.card-title{font-size:14px;font-weight:700}.file-index{font:500 11px 'DM Mono',monospace;color:var(--muted);background:#1d2a3d;border:1px solid #30415a;border-radius:7px;padding:5px 8px}.dropzone{min-height:190px;border:1px dashed #3b506e;border-radius:13px;background:linear-gradient(145deg,#172438aa,#111b2a);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;cursor:pointer;transition:.2s}.dropzone:hover,.dropzone.drag{border-color:var(--blue);background:#172b49}.upload-icon{width:43px;height:43px;border-radius:13px;display:grid;place-items:center;background:#213b60;color:#8bb9ff;margin-bottom:12px}.dropzone strong{font-size:13px}.dropzone p{font-size:12px;color:var(--muted);margin:7px 0 12px}.browse{color:#91baff;font-size:12px;font-weight:700}.file-meta{display:none;margin-top:12px;padding:11px 12px;background:#172438;border:1px solid #2a3b53;border-radius:10px;align-items:center;gap:10px}.file-meta.show{display:flex}.file-meta .fname{font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file-meta .fsize{font-size:10px;color:var(--muted);margin-top:3px}.file-meta .remove{margin-left:auto;border:0;background:transparent;color:#a9b8ca;cursor:pointer;font-size:18px}.hint{color:#71839d;font-size:10px;margin-top:11px}.hidden-input{display:none}
+    .actions{display:flex;gap:12px;align-items:center;margin:18px 0 28px}.primary{border:0;border-radius:11px;padding:14px 22px;color:#07111f;font-weight:800;font-size:13px;background:linear-gradient(100deg,#79aaff,#54d6cc);cursor:pointer;box-shadow:0 8px 25px #398bd933;transition:transform .18s,filter .18s}.primary:hover{transform:translateY(-1px);filter:brightness(1.07)}.primary:disabled{opacity:.55;cursor:not-allowed;transform:none}.secondary{border:1px solid var(--line);background:#121d2d;color:#b7c5d8;padding:13px 16px;border-radius:11px;font-size:12px;font-weight:700;cursor:pointer}.helper{color:var(--muted);font-size:11px}.error{display:none;border:1px solid #783c4b;background:#321c29;color:#ffb1bd;padding:12px 14px;border-radius:10px;font-size:12px;margin:0 0 18px}.error.show{display:block}.loading{display:none;align-items:center;gap:10px;color:#a9c8ff;font-size:12px;margin:0 0 18px}.loading.show{display:flex}.spinner{width:16px;height:16px;border:2px solid #385276;border-top-color:#81b4ff;border-radius:50%;animation:spin .8s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}
+    .results{display:none;margin-top:8px}.section-heading{display:flex;align-items:end;justify-content:space-between;margin:30px 0 14px}.section-heading h2{font-size:18px;margin:0;letter-spacing:-.025em}.section-heading p{margin:5px 0 0;color:var(--muted);font-size:11px}.tag{font-size:10px;color:#9fb2cc;border:1px solid #30415a;padding:5px 8px;border-radius:7px}.score-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}.score-card{padding:18px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(145deg,#152237,#101827)}.score-label{font-size:11px;color:var(--muted);font-weight:600}.score-value{font-size:29px;font-weight:800;letter-spacing:-.04em;margin:10px 0 11px}.score-value.blue{color:#8bb7ff}.score-value.teal{color:#64ddd2}.score-value.white{color:#f2f6fc}.meter{height:5px;border-radius:9px;background:#27364b;overflow:hidden}.meter span{display:block;height:100%;width:0;border-radius:9px;transition:width .7s ease;background:linear-gradient(90deg,#568df4,#5bd6cd)}.verdict-panel{margin-top:13px;padding:17px 19px;border:1px solid var(--line);border-radius:14px;background:#111d2c;display:flex;align-items:center;justify-content:space-between;gap:15px}.verdict-left{display:flex;align-items:center;gap:12px}.verdict-icon{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:#26364b}.verdict-title{font-size:13px;font-weight:800}.verdict-sub{font-size:11px;color:var(--muted);margin-top:4px}.verdict-pill{font-size:11px;font-weight:800;border-radius:99px;padding:8px 11px}.verdict-pill.high{color:#ff9baa;background:#49232e}.verdict-pill.moderate{color:#ffd18d;background:#49351f}.verdict-pill.low{color:#86e7bd;background:#173d34}
+    .diff-panel{padding:18px;overflow:hidden}.diff-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.diff-toolbar strong{font-size:13px}.diff-toolbar span{font-size:10px;color:var(--muted)}#diffBox{overflow:auto;border-radius:9px}#diffBox:empty{display:none}.d2h-wrapper{font-family:'DM Mono',monospace!important;font-size:11px!important}.d2h-file-wrapper{border:1px solid #33445b!important;border-radius:9px;overflow:hidden}.d2h-file-header,.d2h-diff-tbody{background:#111c2b!important;color:#dce7f6!important}.d2h-code-line,.d2h-code-side-line{background:#111c2b!important;color:#dce7f6!important}.d2h-code-line-ctn{color:#dce7f6!important}.d2h-del{background:#4b2632!important}.d2h-ins{background:#174237!important}.d2h-code-linenumber{background:#172438!important;color:#7f91a9!important;border-color:#30415a!important}.fallback-diff{white-space:pre-wrap;background:#0b1320;padding:16px;color:#dce7f6;font:11px/1.6 'DM Mono',monospace;max-height:500px;overflow:auto}
+    /* Readability-focused diff viewer overrides */
+    .diff-panel{padding:22px;background:linear-gradient(180deg,#111d2d,#0e1725)}
+    .diff-toolbar{margin-bottom:16px}
+    .diff-toolbar strong{font-size:15px;letter-spacing:.01em}
+    .diff-toolbar span{font-size:12px}
+    #diffBox{overflow-x:auto;overflow-y:hidden;border:1px solid #35465e;border-radius:12px;background:#0d1726;scrollbar-color:#536783 #111c2b;scrollbar-width:thin}
+    .d2h-wrapper{font-family:'DM Mono',Consolas,monospace!important;font-size:14px!important;line-height:1.65!important;color:#e6edf7!important;min-width:760px}
+    .d2h-file-wrapper{border:0!important;border-radius:0!important;margin:0!important;overflow:visible!important}
+    .d2h-file-header{background:#1a2a40!important;color:#f1f6ff!important;padding:12px 16px!important;border-bottom:1px solid #3a4d67!important;font:600 13px Inter,system-ui,sans-serif!important}
+    .d2h-file-name{color:#f1f6ff!important;font-size:13px!important}
+    .d2h-diff-table{width:100%!important;border-collapse:collapse!important}
+    .d2h-diff-tbody,.d2h-code-line,.d2h-code-side-line{background:#101c2c!important;color:#e6edf7!important}
+    .d2h-code-line-ctn{color:#e6edf7!important;font-size:14px!important;line-height:1.65!important;padding:2px 10px!important;white-space:pre!important}
+    .d2h-code-linenumber{background:#17263a!important;color:#9aacc4!important;border-color:#35465e!important;min-width:42px!important;padding:2px 9px!important;font-size:12px!important}
+    .d2h-del{background:#38232d!important}
+    .d2h-ins{background:#19352f!important}
+    .d2h-del .d2h-change{background:#70404b!important;color:#fff!important}
+    .d2h-ins .d2h-change{background:#28604e!important;color:#fff!important}
+    .d2h-info{background:#1b2c43!important;color:#a9c5ec!important;border-color:#35465e!important;font-size:12px!important}
+    .d2h-emptyplaceholder,.d2h-code-side-emptyplaceholder{background:#0d1726!important;border-color:#26384f!important}
+    .d2h-tag{display:none!important}
+    .d2h-file-side-diff{width:50%!important}
+    .d2h-file-side-diff table{width:100%!important}
+    .fallback-diff{white-space:pre-wrap;background:#0d1726;padding:20px;color:#e6edf7;font:14px/1.7 'DM Mono',monospace;max-height:600px;overflow:auto}
+    @media(max-width:900px){.d2h-wrapper{font-size:12px!important}.d2h-code-line-ctn{font-size:12px!important}.diff-panel{padding:14px}#diffBox{overflow-x:auto}}
+    .footer{border-top:1px solid #ffffff12;margin-top:42px;padding-top:18px;display:flex;justify-content:space-between;color:#71839d;font-size:10px}.footer b{color:#aabbd1}.method-list{display:flex;gap:8px;flex-wrap:wrap}.method{border:1px solid #2c405a;border-radius:7px;padding:6px 9px;color:#9eb1cb;font-size:10px}
+    @media(max-width:760px){.shell{padding:18px 15px 40px}.workspace{grid-template-columns:1fr}.hero{padding:32px 0 22px}.score-grid{grid-template-columns:1fr}.score-card{padding:15px}.score-value{font-size:25px}.actions{flex-wrap:wrap}.primary{flex:1}.footer{gap:12px;flex-direction:column}.verdict-panel{align-items:flex-start;flex-direction:column}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand"><div class="brandmark">&lt;/&gt;</div><div>CODEGUARD<small>CODE SIMILARITY ANALYZER</small></div></div>
+      <div class="status"><span class="dot"></span> Local analysis workspace</div>
+    </header>
+    <section class="hero">
+      <div class="eyebrow">Algorithm design & analysis project</div>
+      <h1>Compare code.<br><span>Reveal similarities.</span></h1>
+      <p>Analyze two C or C++ source files using Longest Common Subsequence and Knuth–Morris–Pratt pattern matching. Review the similarity metrics and inspect changes side by side.</p>
+    </section>
 
-    <!-- CSS for Diff2Html and Highlight.js -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.1/styles/github.min.css"
-    />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      href="https://cdn.jsdelivr.net/npm/diff2html/bundles/css/diff2html.min.css"
-    />
-
-    <style>
-      body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        background-color: #f4f7f6;
-        margin: 0;
-        padding: 20px;
-        color: #333;
-      }
-      .container {
-        max-width: 1000px;
-        margin: 0 auto;
-        background: white;
-        padding: 30px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      }
-      h1 {
-        text-align: center;
-        color: #2c3e50;
-      }
-      .upload-section {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 30px;
-        gap: 20px;
-      }
-      .file-box {
-        flex: 1;
-        padding: 20px;
-        border: 2px dashed #3498db;
-        border-radius: 8px;
-        text-align: center;
-        background: #f9fbfc;
-      }
-      button {
-        display: block;
-        width: 100%;
-        padding: 15px;
-        background-color: #27ae60;
-        color: white;
-        border: none;
-        border-radius: 5px;
-        font-size: 18px;
-        cursor: pointer;
-        margin-top: 30px;
-        font-weight: bold;
-      }
-      .result-box {
-        margin-top: 30px;
-        padding: 20px;
-        border-radius: 8px;
-        display: none;
-        background: #2c3e50;
-        color: white;
-      }
-      .score-item {
-        font-size: 18px;
-        margin: 10px 0;
-        display: flex;
-        justify-content: space-between;
-        border-bottom: 1px solid #455a64;
-        padding-bottom: 5px;
-      }
-      .verdict {
-        font-size: 24px;
-        font-weight: bold;
-        text-align: center;
-        margin-top: 20px;
-        padding: 10px;
-        border-radius: 5px;
-      }
-      .high {
-        background-color: #e74c3c;
-      }
-      .moderate {
-        background-color: #f39c12;
-      }
-      .low {
-        background-color: #2ecc71;
-      }
-      #diffBox {
-        margin-top: 30px;
-      } /* Yahan comparison dikhega */
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <h1>Code Similarity & Plagiarism Detector</h1>
-      <p style="text-align: center; color: #7f8c8d">
-        Algorithms Used: Longest Common Subsequence (DP) & Knuth-Morris-Pratt
-      </p>
-
-      <form id="uploadForm">
-        <div class="upload-section">
-          <div class="file-box">
-            <h3>Upload File A (.c / .cpp)</h3>
-            <input type="file" id="fileA" required accept=".c, .cpp" />
-          </div>
-          <div class="file-box">
-            <h3>Upload File B (.c / .cpp)</h3>
-            <input type="file" id="fileB" required accept=".c, .cpp" />
-          </div>
-        </div>
-        <button type="submit">Compare Code Files</button>
-      </form>
-
-      <div class="result-box" id="resultBox">
-        <h2 style="text-align: center; margin-top: 0">Analysis Report</h2>
-        <div class="score-item">
-          <span>LCS Similarity (Structural Match):</span>
-          <span id="lcsScore">0%</span>
-        </div>
-        <div class="score-item">
-          <span>KMP Exact Match (Copy-Paste):</span>
-          <span id="kmpScore">0%</span>
-        </div>
-        <div class="score-item">
-          <strong>Overall Similarity Score:</strong>
-          <strong id="totalScore">0%</strong>
-        </div>
-        <div id="verdictBox" class="verdict"></div>
+    <form id="uploadForm" novalidate>
+      <div class="workspace">
+        <section class="panel upload-card">
+          <div class="card-head"><div class="card-title">First source file</div><span class="file-index">FILE 01</span></div>
+          <label class="dropzone" id="dropA" for="fileA">
+            <div class="upload-icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m-5 5 5-5 5 5M4 16v4h16v-4"/></svg></div>
+            <strong>Drop your source file here</strong><p>or click to browse your computer</p><span class="browse">Choose .c or .cpp file</span>
+          </label>
+          <input class="hidden-input" type="file" id="fileA" accept=".c,.cpp,text/plain" />
+          <div class="file-meta" id="metaA"><span>📄</span><div style="min-width:0"><div class="fname" id="nameA"></div><div class="fsize" id="sizeA"></div></div><button class="remove" type="button" data-remove="A" aria-label="Remove file">×</button></div>
+          <div class="hint">Supported formats: C and C++ source files</div>
+        </section>
+        <section class="panel upload-card">
+          <div class="card-head"><div class="card-title">Second source file</div><span class="file-index">FILE 02</span></div>
+          <label class="dropzone" id="dropB" for="fileB">
+            <div class="upload-icon"><svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 16V4m-5 5 5-5 5 5M4 16v4h16v-4"/></svg></div>
+            <strong>Drop your source file here</strong><p>or click to browse your computer</p><span class="browse">Choose .c or .cpp file</span>
+          </label>
+          <input class="hidden-input" type="file" id="fileB" accept=".c,.cpp,text/plain" />
+          <div class="file-meta" id="metaB"><span>📄</span><div style="min-width:0"><div class="fname" id="nameB"></div><div class="fsize" id="sizeB"></div></div><button class="remove" type="button" data-remove="B" aria-label="Remove file">×</button></div>
+          <div class="hint">Maximum recommended size: 1 MB per file</div>
+        </section>
       </div>
+      <div class="actions"><button class="primary" id="compareBtn" type="submit">Analyze source files&nbsp; →</button><button class="secondary" id="resetBtn" type="button">Reset workspace</button><span class="helper">Both files are required to begin analysis.</span></div>
+    </form>
+    <div class="error" id="errorBox" role="alert"></div>
+    <div class="loading" id="loading"><span class="spinner"></span> Running LCS and KMP analysis…</div>
 
-      <!-- UI enhancement display box -->
-      <div id="diffBox"></div>
-    </div>
+    <section class="results" id="results" aria-live="polite">
+      <div class="section-heading"><div><h2>Analysis overview</h2><p>Similarity metrics returned by your C++ algorithm engine.</p></div><span class="tag">COMPLETED</span></div>
+      <div class="score-grid">
+        <article class="score-card"><div class="score-label">LCS · STRUCTURAL MATCH</div><div class="score-value blue" id="lcsScore">0.00%</div><div class="meter"><span id="lcsMeter"></span></div></article>
+        <article class="score-card"><div class="score-label">KMP · EXACT MATCH</div><div class="score-value teal" id="kmpScore">0.00%</div><div class="meter"><span id="kmpMeter"></span></div></article>
+        <article class="score-card"><div class="score-label">OVERALL SIMILARITY</div><div class="score-value white" id="totalScore">0.00%</div><div class="meter"><span id="totalMeter"></span></div></article>
+      </div>
+      <div class="verdict-panel"><div class="verdict-left"><div class="verdict-icon">✦</div><div><div class="verdict-title">Analysis verdict</div><div class="verdict-sub">Based on the score and thresholds configured in the algorithm.</div></div></div><span class="verdict-pill" id="verdictBox">Awaiting result</span></div>
+      <div class="section-heading"><div><h2>Code comparison</h2><p>Review inserted and removed lines in a side-by-side view.</p></div><span class="tag">DIFF VIEW</span></div>
+      <section class="panel diff-panel"><div class="diff-toolbar"><strong>Source differences</strong><span>File A&nbsp; ↔ &nbsp;File B</span></div><div id="diffBox"></div></section>
+    </section>
+    <footer class="footer"><div><b>CODEGUARD</b> · Academic project demonstration</div><div class="method-list"><span class="method">LCS · Dynamic Programming</span><span class="method">KMP · Pattern Matching</span></div></footer>
+  </main>
 
-    <!-- Scripts for diff generation and syntax highlighting -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
-    <script
-      type="text/javascript"
-      src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"
-    ></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jsdiff/5.1.0/diff.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/diff2html/bundles/js/diff2html-ui.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script>
+    const byId = id => document.getElementById(id);
+    const selected = { A: null, B: null };
+    const MAX_BYTES = 1024 * 1024;
+    const formatSize = bytes => bytes < 1024 ? `${bytes} B` : `${(bytes / 1024).toFixed(1)} KB`;
 
-    <script>
-      document
-        .getElementById("uploadForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-
-          const fileA = document.getElementById("fileA").files[0];
-          const fileB = document.getElementById("fileB").files[0];
-
-          const formData = new FormData();
-          formData.append("codeFiles", fileA);
-          formData.append("codeFiles", fileB);
-
-          const btn = document.querySelector("button");
-          btn.innerText = "Analyzing...";
-
-          try {
-            const response = await fetch("/compare", {
-              method: "POST",
-              body: formData,
-            });
-            const data = await response.json();
-
-            if (data.error) {
-              alert(data.error);
-              return;
-            }
-
-            document.getElementById("lcsScore").innerText =
-              (data.lcs_ratio * 100).toFixed(2) + "%";
-            document.getElementById("kmpScore").innerText =
-              (data.kmp_ratio * 100).toFixed(2) + "%";
-            document.getElementById("totalScore").innerText =
-              data.overall_score.toFixed(2) + "%";
-
-            const verdictBox = document.getElementById("verdictBox");
-            verdictBox.innerText = data.verdict;
-            verdictBox.className = "verdict";
-            if (data.verdict === "High Similarity")
-              verdictBox.classList.add("high");
-            else if (data.verdict === "Moderate Similarity")
-              verdictBox.classList.add("moderate");
-            else verdictBox.classList.add("low");
-
-            document.getElementById("resultBox").style.display = "block";
-
-            // --- DIFF2HTML LOGIC ---
-            // JsDiff library se ek patch (git-style diff) banate hain
-            const diffString = Diff.createTwoFilesPatch(
-              "File A",
-              "File B",
-              data.codeA,
-              data.codeB,
-            );
-
-            // Diff2Html se usko UI par side-by-side draw karte hain
-            const targetElement = document.getElementById("diffBox");
-            const diff2htmlUi = new Diff2HtmlUI(targetElement, diffString, {
-              drawFileList: false,
-              matching: "lines",
-              outputFormat: "side-by-side", // Project synopsis ke hisaab se
-            });
-            diff2htmlUi.draw();
-            diff2htmlUi.highlightCode(); // Highlight.js trigger karta hai
-          } catch (err) {
-            alert("Error connecting to backend!");
-          } finally {
-            btn.innerText = "Compare Code Files";
-          }
-        });
-    </script>
-  </body>
+    function showError(message) { const box = byId('errorBox'); box.textContent = message; box.classList.add('show'); }
+    function clearError() { byId('errorBox').textContent = ''; byId('errorBox').classList.remove('show'); }
+    function setFile(slot, file) {
+      clearError();
+      if (!file) return;
+      if (!/\.(c|cpp)$/i.test(file.name)) { showError('Please select a .c or .cpp source file.'); return; }
+      if (file.size > MAX_BYTES) { showError('This file is larger than 1 MB. Please choose a smaller source file.'); return; }
+      selected[slot] = file;
+      byId(`name${slot}`).textContent = file.name;
+      byId(`size${slot}`).textContent = formatSize(file.size);
+      byId(`meta${slot}`).classList.add('show');
+      byId(`drop${slot}`).style.borderColor = '#3dd598';
+      byId(`drop${slot}`).style.background = '#122b2a';
+      byId('results').style.display = 'none';
+    }
+    function removeFile(slot) {
+      selected[slot] = null; byId(`file${slot}`).value = '';
+      byId(`meta${slot}`).classList.remove('show');
+      byId(`drop${slot}`).style.borderColor = ''; byId(`drop${slot}`).style.background = '';
+    }
+    ['A','B'].forEach(slot => {
+      byId(`file${slot}`).addEventListener('change', e => setFile(slot, e.target.files[0]));
+      const zone = byId(`drop${slot}`);
+      ['dragenter','dragover'].forEach(type => zone.addEventListener(type, e => { e.preventDefault(); zone.classList.add('drag'); }));
+      ['dragleave','drop'].forEach(type => zone.addEventListener(type, e => { e.preventDefault(); zone.classList.remove('drag'); }));
+      zone.addEventListener('drop', e => setFile(slot, e.dataTransfer.files[0]));
+    });
+    document.querySelectorAll('[data-remove]').forEach(btn => btn.addEventListener('click', () => removeFile(btn.dataset.remove)));
+    byId('resetBtn').addEventListener('click', () => {
+      removeFile('A'); removeFile('B'); clearError(); byId('results').style.display = 'none'; byId('diffBox').innerHTML = '';
+    });
+    function setMetric(id, meterId, value) {
+      const safe = Math.max(0, Math.min(100, Number(value) || 0));
+      byId(id).textContent = `${safe.toFixed(2)}%`;
+      byId(meterId).style.width = `${safe}%`;
+    }
+    function renderDiff(codeA, codeB) {
+      const target = byId('diffBox'); target.innerHTML = '';
+      if (window.Diff && window.Diff2HtmlUI) {
+        const patch = Diff.createTwoFilesPatch('File A', 'File B', codeA, codeB, '', '', { context: 3 });
+        const ui = new Diff2HtmlUI(target, patch, { drawFileList: false, matching: 'lines', outputFormat: 'side-by-side', synchronisedScroll: true });
+        ui.draw();
+        if (typeof ui.highlightCode === 'function') ui.highlightCode();
+      } else {
+        const pre = document.createElement('pre'); pre.className = 'fallback-diff';
+        pre.textContent = 'Diff viewer libraries could not load.\n\n--- FILE A ---\n' + codeA + '\n\n--- FILE B ---\n' + codeB;
+        target.appendChild(pre);
+      }
+    }
+    byId('uploadForm').addEventListener('submit', async event => {
+      event.preventDefault(); clearError();
+      if (!selected.A || !selected.B) { showError('Please choose both source files before starting the analysis.'); return; }
+      if (selected.A === selected.B || (selected.A.name === selected.B.name && selected.A.size === selected.B.size && selected.A.lastModified === selected.B.lastModified)) {
+        showError('Please select two different source files for comparison.'); return;
+      }
+      const formData = new FormData(); formData.append('codeFiles', selected.A); formData.append('codeFiles', selected.B);
+      const button = byId('compareBtn'); button.disabled = true; button.textContent = 'Analyzing…';
+      byId('loading').classList.add('show'); byId('results').style.display = 'none';
+      try {
+        const response = await fetch('/compare', { method: 'POST', body: formData });
+        let data;
+        try { data = await response.json(); } catch { throw new Error('The server returned an invalid response. Check the backend terminal.'); }
+        if (!response.ok || data.error) throw new Error(data.error || `Analysis failed (HTTP ${response.status}).`);
+        if (![data.lcs_ratio, data.kmp_ratio, data.overall_score].every(v => Number.isFinite(Number(v)))) throw new Error('The algorithm returned incomplete similarity metrics.');
+        setMetric('lcsScore','lcsMeter',Number(data.lcs_ratio)*100);
+        setMetric('kmpScore','kmpMeter',Number(data.kmp_ratio)*100);
+        setMetric('totalScore','totalMeter',Number(data.overall_score));
+        const verdict = String(data.verdict || 'Analysis complete');
+        const pill = byId('verdictBox'); pill.textContent = verdict; pill.className = 'verdict-pill';
+        if (verdict === 'High Similarity') pill.classList.add('high');
+        else if (verdict === 'Moderate Similarity') pill.classList.add('moderate');
+        else pill.classList.add('low');
+        renderDiff(String(data.codeA ?? ''), String(data.codeB ?? ''));
+        byId('results').style.display = 'block';
+        byId('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (error) { showError(error.message || 'Unable to connect to the backend. Make sure the server is running.'); }
+      finally { button.disabled = false; button.textContent = 'Analyze source files  →'; byId('loading').classList.remove('show'); }
+    });
+  </script>
+</body>
 </html>
